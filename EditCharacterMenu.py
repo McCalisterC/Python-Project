@@ -9,7 +9,7 @@ import customtkinter
 def updateWindow(window, frame):
     
     frame.destroy()
-    window.title("New Character")
+    window.title("Edit Character")
     window.geometry("1280x720")
     window.configure(bg="#FFFFFF")
 
@@ -19,7 +19,7 @@ def updateWindow(window, frame):
 
     Label_id2 = customtkinter.CTkLabel(
     master=frame,
-    text="New Character",
+    text="Edit Character",
     font=("Arial", 30),
     text_color="#000000",
     height=30,
