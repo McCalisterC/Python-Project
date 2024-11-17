@@ -3,19 +3,12 @@
 from tkinter import *
 import tkinter as tk
 import customtkinter
+import window_manager
 
 # Main Window Properties
 
 def updateWindow(window, frame):
-    import MainMenu
-    
-    frame.destroy()
-    window.title("Character Details")
-    window.geometry("1280x720")
-    window.configure(bg="#FFFFFF")
-
-    frame = Frame(window, width="1280", height="720")
-    frame.pack(expand=True, fill="both")
+    frame = window_manager.update_window(window, frame, "Character Details")
 
 
     Label_id2 = customtkinter.CTkLabel(
@@ -47,7 +40,7 @@ def updateWindow(window, frame):
         border_color="#000000",
         bg_color="#FFFFFF",
         fg_color="#ff0000",
-        command=lambda: MainMenu.updateWindow(window, frame)
+        command=lambda: window_manager.navigate_to(window, frame, "main")
         )
     Button_id7.pack(side=tk.TOP, expand=True)
     

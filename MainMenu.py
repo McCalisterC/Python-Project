@@ -9,7 +9,9 @@ def quitGame():
     global window
     window.destroy()
 
-def start(window, frame):
+def updateMainMenuWindow(window, frame):
+    frame = window_manager.update_window(window, frame, "Main Menu")
+
     Label_id2 = customtkinter.CTkLabel(
         master=frame,
         text="Main Menu",
@@ -131,23 +133,3 @@ def start(window, frame):
         )
     Button_id7.place(x=600, y=450)
     Button_id7.pack(side=tk.TOP, expand=True)
-
-
-
-    #run the main loop
-    window.mainloop()
-
-def updateMainMenuWindow(window, frame):
-    frame = window_manager.update_window(window, frame, "Main Menu")
-    start(window, frame)
-
-#Window details
-window = Tk()
-window.title("Main Menu")
-window.geometry("1280x720")
-window.configure(bg="#FFFFFF")
-
-frame = Frame(window, width="1280", height="720")
-frame.pack(expand=True, fill="both")
-
-start(window, frame)
