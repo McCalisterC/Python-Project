@@ -6,6 +6,8 @@ import window_manager
 import json
 import os
 from tkinter import messagebox
+from PIL import Image
+from SpritesStore import sprite_paths
 
 skillPoints = 10
 characterName = ""
@@ -13,6 +15,8 @@ characterVitality = 0
 characterStrength = 0
 characterDexterity = 0
 characterDefense = 0
+
+sprite_index = 0
 
 # Main Window Properties
 def updateWindow(window, frame):
@@ -37,9 +41,17 @@ def updateWindow(window, frame):
     )
     title_label.pack(side=tk.TOP, expand=True)
 
+    char_edit_frame = Frame(frame, width=1000, height=600)
+    char_edit_frame.propagate(0)
+    char_edit_frame.pack(side=tk.TOP, expand=TRUE)
+
+    left_frame = Frame(char_edit_frame, width=400, height=600)
+    left_frame.propagate(0)
+    left_frame.pack(side=tk.LEFT, expand=TRUE)
+
     # Create skill points label
     skill_points_label = customtkinter.CTkLabel(
-        master=frame,
+        master=left_frame,
         text=f"Skill Points: {skillPoints}",
         font=("Arial", 20),
         text_color="#000000",
@@ -111,7 +123,7 @@ def updateWindow(window, frame):
             save_button.configure(state="disabled")
 
     # Create frame for name input
-    name_frame = Frame(frame, bg="#FFFFFF")
+    name_frame = Frame(left_frame, bg="#FFFFFF")
     name_frame.pack(side=tk.TOP, expand=True)
 
     # Create name label
@@ -145,7 +157,7 @@ def updateWindow(window, frame):
     input_id.bind('<KeyRelease>', lambda e: update_save_button_state())
 
     # Create a frame for Vitality label/slider
-    vitality_frame = Frame(frame, bg="#FFFFFF")
+    vitality_frame = Frame(left_frame, bg="#FFFFFF")
     vitality_frame.pack(side=tk.TOP, expand=True)
 
     # Create Vitality label
@@ -184,7 +196,7 @@ def updateWindow(window, frame):
     vitality_slider.set(0)  # Set initial value
 
     # Create a frame for Strength label/slider
-    strength_frame = Frame(frame, bg="#FFFFFF")
+    strength_frame = Frame(left_frame, bg="#FFFFFF")
     strength_frame.pack(side=tk.TOP, expand=True)
 
     # Create strength label
@@ -223,7 +235,7 @@ def updateWindow(window, frame):
     strength_slider.set(0) # Set initial value
 
     # Create a frame for Dexterity label/slider
-    dexterity_frame = Frame(frame, bg="#FFFFFF")
+    dexterity_frame = Frame(left_frame, bg="#FFFFFF")
     dexterity_frame.pack(side=tk.TOP, expand=True)
 
     # Create Dexterity label
@@ -262,7 +274,7 @@ def updateWindow(window, frame):
     dexterity_slider.set(0) #Set initial value
 
     # Create a frame for Defense label/slider
-    defense_frame = Frame(frame, bg="#FFFFFF")
+    defense_frame = Frame(left_frame, bg="#FFFFFF")
     defense_frame.pack(side=tk.TOP, expand=True)
 
     # Create defense label
@@ -300,9 +312,73 @@ def updateWindow(window, frame):
     defense_slider.pack(side=tk.TOP, expand=True)
     defense_slider.set(0)
 
+    right_frame = Frame(char_edit_frame, width=400, height=600)
+    right_frame.propagate(0)
+    right_frame.pack(side=tk.LEFT, expand=TRUE)
+
+    image_id = customtkinter.CTkImage(
+        light_image=Image.open(sprite_paths[sprite_index]),
+        size=(250, 500)
+    )
+
+    image_label = customtkinter.CTkLabel(right_frame, image=image_id, text="") 
+    image_label.pack(side=tk.TOP, expand=TRUE)
+
+    img_button_frame = Frame(right_frame, width=400, height=100)
+    img_button_frame.propagate(0)
+    img_button_frame.pack(side=tk.BOTTOM, expand=TRUE)
+
+    def handle_sprite_change(img, num):
+        global sprite_index, sprite_paths
+        
+        if sprite_index >= len(sprite_paths) - 1 and num == 1:
+            sprite_index = 0
+        elif sprite_index == 0 and num == -1:
+            sprite_index = len(sprite_paths) - 1
+        else:
+            sprite_index += num
+
+        img.configure(light_image=Image.open(sprite_paths[sprite_index]))
+
+    back_button = customtkinter.CTkButton(
+        master=img_button_frame,
+        text="Back",
+        font=("undefined", 16),
+        text_color="#000000",
+        hover=True,
+        hover_color="#188124",
+        height=30,
+        width=100,
+        border_width=2,
+        corner_radius=6,
+        border_color="#000000",
+        bg_color="#FFFFFF",
+        fg_color="#00ff55",
+        command=lambda: handle_sprite_change(image_id, -1)
+    )
+    back_button.pack(side=tk.LEFT, expand=TRUE)
+
+    next_button = customtkinter.CTkButton(
+        master=img_button_frame,
+        text="Next",
+        font=("undefined", 16),
+        text_color="#000000",
+        hover=True,
+        hover_color="#188124",
+        height=30,
+        width=100,
+        border_width=2,
+        corner_radius=6,
+        border_color="#000000",
+        bg_color="#FFFFFF",
+        fg_color="#00ff55",
+        command=lambda: handle_sprite_change(image_id, 1)
+    )
+    next_button.pack(side=tk.LEFT, expand=TRUE)
+
     # Handle saving the character
     def save_character():
-        global characterName, characterVitality, characterStrength, characterDexterity, characterDefense, skillPoints
+        global characterName, characterVitality, characterStrength, characterDexterity, characterDefense, skillPoints, sprite_index, sprite_paths
         
         # Create character dictionary
         character_data = {
@@ -314,7 +390,8 @@ def updateWindow(window, frame):
             "vitality": characterVitality,
             "strength": characterStrength,
             "dexterity": characterDexterity,
-            "defense": characterDefense
+            "defense": characterDefense,
+            "sprite_path": sprite_index
         }
         
         # Load existing characters or create empty list
