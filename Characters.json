@@ -1,20 +1,13 @@
 [
    {
-      "name": "Char 1",
+      "name": "One Char",
       "level": 1,
       "xp": 0,
-      "vitality": 3,
-      "strength": 7,
+      "defeated_enemies": 0,
+      "secrets": 0,
+      "vitality": 0,
+      "strength": 10,
       "dexterity": 0,
-      "defense": 0
-   },
-   {
-      "name": "Char 2",
-      "level": 1,
-      "xp": 0,
-      "vitality": 4,
-      "strength": 3,
-      "dexterity": 3,
       "defense": 0
    }
 ]

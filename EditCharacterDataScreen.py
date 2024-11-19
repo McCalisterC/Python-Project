@@ -15,16 +15,35 @@ characterDexterity = 0
 characterDefense = 0
 
 # Main Window Properties
-def updateWindow(window, frame):
-    global skillPoints, characterVitality, characterStrength, characterDexterity, characterDefense
+def updateWindow(window, frame, name):
+    global skillPoints, characterVitality, characterStrength, characterDexterity, characterDefense, characterName
     
     # Update window using window_manager
     frame = window_manager.update_window(window, frame, "New Character")
 
+    #Load character passed in
+    all_characters = []
+    if os.path.exists("Characters.json"):
+        try:
+            with open("Characters.json", "r") as file:
+                all_characters = json.load(file)
+        except json.JSONDecodeError:
+            # Handle case where file exists but is empty or invalid
+            all_characters = []
+
+    for character in all_characters:
+        if character.get("name") == name:
+            characterName = character.get("name")
+            characterVitality = character.get("vitality")
+            characterStrength = character.get("strength")
+            characterDexterity = character.get("dexterity")
+            characterDefense = character.get("defense")
+            skillPoints = (9 + character.get("level")) - (characterVitality + characterDefense + characterStrength + characterDexterity)
+
     # Create title label
     title_label = customtkinter.CTkLabel(
     master=frame,
-    text="Create Your Character",
+    text="Edit Your Character",
     font=("Arial", 30),
     text_color="#000000",
     height=30,
@@ -140,7 +159,9 @@ def updateWindow(window, frame):
         bg_color="#FFFFFF",
         fg_color="#FFFFFF",
     )
+    input_id.insert("1.0", characterName)
     input_id.pack(side=tk.LEFT, expand=True)
+
     # Bind the textbox to update save button when text changes
     input_id.bind('<KeyRelease>', lambda e: update_save_button_state())
 
@@ -181,7 +202,7 @@ def updateWindow(window, frame):
         command=lambda x: handle_stat_change(x, "vitality", vitality_label, vitality_slider)
     )
     vitality_slider.pack(side=tk.TOP, padx=10)
-    vitality_slider.set(0)  # Set initial value
+    vitality_slider.set(characterVitality)  # Set initial value
 
     # Create a frame for Strength label/slider
     strength_frame = Frame(frame, bg="#FFFFFF")
@@ -220,7 +241,7 @@ def updateWindow(window, frame):
         command=lambda x: handle_stat_change(x, "strength", strength_label, strength_slider)
     )
     strength_slider.pack(side=tk.TOP, expand=True)
-    strength_slider.set(0) # Set initial value
+    strength_slider.set(characterStrength) # Set initial value
 
     # Create a frame for Dexterity label/slider
     dexterity_frame = Frame(frame, bg="#FFFFFF")
@@ -259,7 +280,7 @@ def updateWindow(window, frame):
         command=lambda x: handle_stat_change(x, "dexterity", dexterity_label, dexterity_slider)
     )
     dexterity_slider.pack(side=tk.TOP, expand=True)
-    dexterity_slider.set(0) #Set initial value
+    dexterity_slider.set(characterDexterity) #Set initial value
 
     # Create a frame for Defense label/slider
     defense_frame = Frame(frame, bg="#FFFFFF")
@@ -298,24 +319,11 @@ def updateWindow(window, frame):
         command=lambda x: handle_stat_change(x, "defense", defense_label, defense_slider)
     )
     defense_slider.pack(side=tk.TOP, expand=True)
-    defense_slider.set(0)
+    defense_slider.set(characterDefense)
 
     # Handle saving the character
     def save_character():
         global characterName, characterVitality, characterStrength, characterDexterity, characterDefense, skillPoints
-        
-        # Create character dictionary
-        character_data = {
-            "name": characterName,
-            "level": 1,
-            "xp": 0,
-            "defeated_enemies":0,
-            "secrets":0,
-            "vitality": characterVitality,
-            "strength": characterStrength,
-            "dexterity": characterDexterity,
-            "defense": characterDefense
-        }
         
         # Load existing characters or create empty list
         all_characters = []
@@ -328,13 +336,20 @@ def updateWindow(window, frame):
                 all_characters = []
         
         # Add new character
-        all_characters.append(character_data)
+        for character in all_characters:
+            if character.get("name") == name:
+                character.update({"name": characterName})
+                character.update({"vitality": characterVitality})
+                character.update({"strength": characterStrength})
+                character.update({"dexterity": characterDexterity})
+                character.update({"defense": characterDefense})
+                break
         
         # Save to file
         try:
             with open("Characters.json", "w") as file:
                 json.dump(all_characters, file, indent=3)
-            messagebox.showinfo("Success", "Character saved successfully!")
+            messagebox.showinfo("Success", "Character edited successfully!")
             #Reset all variables for next character
             skillPoints = 10
             characterName = ""
@@ -343,15 +358,15 @@ def updateWindow(window, frame):
             characterDexterity = 0
             characterDefense = 0
             # Navigate back to main menu
-            window_manager.navigate_to(window, frame, "main")
+            window_manager.navigate_to(window, frame, "edit")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to save character: {str(e)}")
+            messagebox.showerror("Error", f"Failed to edit character: {str(e)}")
 
 
     # Create save character button
     save_button = customtkinter.CTkButton(
         master=frame,
-        text="Save Character",
+        text="Edit Character",
         font=("undefined", 16),
         text_color="#000000",
         hover=True,
@@ -382,6 +397,6 @@ def updateWindow(window, frame):
         border_color="#000000",
         bg_color="#FFFFFF",
         fg_color="#ff0000",
-        command=lambda: window_manager.navigate_to(window, frame, "main")
+        command=lambda: window_manager.navigate_to(window, frame, "edit")
         )
     exit_button.pack(side=tk.TOP, expand=True)

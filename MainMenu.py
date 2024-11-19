@@ -5,10 +5,6 @@ import tkinter as tk
 import customtkinter
 import window_manager
 
-def quitGame():
-    global window
-    window.destroy()
-
 def updateMainMenuWindow(window, frame):
     frame = window_manager.update_window(window, frame, "Main Menu")
 
@@ -129,7 +125,7 @@ def updateMainMenuWindow(window, frame):
         border_color="#000000",
         bg_color="#FFFFFF",
         fg_color="#ff0000",
-        command=lambda: quitGame()
+        command=lambda: window_manager.quit(window)
         )
     Button_id7.place(x=600, y=450)
     Button_id7.pack(side=tk.TOP, expand=True)

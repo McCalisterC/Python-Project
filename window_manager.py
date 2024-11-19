@@ -28,3 +28,14 @@ def navigate_to(window, frame, menu_type):
     elif menu_type == "details":
         from CharacterDetailsMenu import updateWindow
         updateWindow(window, frame) 
+
+def navigate_to_character_edit(window, frame, name):
+    from EditCharacterDataScreen import updateWindow
+    updateWindow(window, frame, name)
+
+def navigate_to_character_detail(window, frame, name):
+    from CharDetailScreen import updateWindow
+    updateWindow(window, frame, name)
+
+def quit(window):
+    window.destroy()
