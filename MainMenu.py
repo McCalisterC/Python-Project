@@ -36,6 +36,7 @@ def updateMainMenuWindow(window, frame):
         border_color="#000000",
         bg_color="#FFFFFF",
         fg_color="#00ff55",
+        command=lambda: window_manager.navigate_to(window, frame, "play")
         )
     Button_id4.place(x=600, y=200)
     Button_id4.pack(side=tk.TOP, expand=True)
