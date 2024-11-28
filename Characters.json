@@ -10,5 +10,17 @@
       "dexterity": 0,
       "defense": 0,
       "sprite_path": 0
+   },
+   {
+      "name": "Guy",
+      "level": 1,
+      "xp": 0,
+      "defeated_enemies": 0,
+      "secrets": 0,
+      "vitality": 0,
+      "strength": 10,
+      "dexterity": 0,
+      "defense": 0,
+      "sprite_path": 2
    }
 ]

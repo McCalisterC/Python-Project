@@ -5,16 +5,63 @@ import customtkinter
 import window_manager
 import json
 import os
+import random
+from SpritesStore import sprite_paths
 from PIL import Image
 from ResourceBar import ResourceBar
+from GameChar import char
 
 # Main Window Properties
-
-health = 100
-mana = 100
+playerChar = char
+enemyChar = char
 
 def updateWindow(window, frame, name):
+    global playerChar, enemyChar
     frame = window_manager.update_window(window, frame, "Battle")
+
+    #Load character passed in
+    all_characters = []
+    if os.path.exists("Characters.json"):
+        try:
+            with open("Characters.json", "r") as file:
+                all_characters = json.load(file)
+        except json.JSONDecodeError:
+            # Handle case where file exists but is empty or invalid
+            all_characters = []
+
+    for character in all_characters:
+        if character.get("name") == name:
+            playerChar = char(
+                character.get("vitality"),
+                character.get("strength"),
+                character.get("defense"),
+                character.get("dexterity"),
+                character.get("name"),
+                character.get("sprite_path")
+                )
+            
+            enemySkillPoints = character.get("level") + 9
+
+            enemyVitality = random.randrange(0, enemySkillPoints)
+            enemySkillPoints -= enemyVitality
+
+            enemyStrength = random.randrange(0, enemySkillPoints)
+            enemySkillPoints -= enemyStrength
+
+            enemyDefense = random.randrange(0, enemySkillPoints)
+            enemySkillPoints -= enemyDefense
+
+            enemyDexterity = random.randrange(0, enemySkillPoints)
+            enemySkillPoints -= enemyDexterity
+
+            enemyChar = char(
+                enemyVitality,
+                enemyStrength,
+                enemyDefense,
+                enemyDexterity,
+                "Monster",
+                random.randrange(0, len(sprite_paths) - 1)
+            )
 
     char_frame = Frame(frame, width=1280, height=450)
     char_frame.propagate(0)
@@ -28,7 +75,7 @@ def updateWindow(window, frame, name):
         master=player_char_frame,
         width=200,
         height=20,
-        current_resource=100
+        max_resource=playerChar.health
     )
     health_bar.pack(side=tk.TOP, padx=10)
 
@@ -36,14 +83,14 @@ def updateWindow(window, frame, name):
         master=player_char_frame,
         width=200,
         height=20,
-        current_resource=100,
+        max_resource=playerChar.mana,
         static=True,
         color="#68C2F5"
     )
     mana_bar.pack(side=tk.TOP, padx=10)
 
     player_image = customtkinter.CTkImage(
-        light_image=Image.open("assets/sprites/Sprite_Blue.png"),
+        light_image=Image.open(sprite_paths[playerChar.sprite_index]),
         size=(150, 300)
     )
 
@@ -58,7 +105,7 @@ def updateWindow(window, frame, name):
         master=enemy_char_frame,
         width=200,
         height=20,
-        current_resource=100
+        max_resource=enemyChar.health
     )
     health_bar.pack(side=tk.TOP, padx=10)
 
@@ -66,14 +113,14 @@ def updateWindow(window, frame, name):
         master=enemy_char_frame,
         width=200,
         height=20,
-        current_resource=100,
+        max_resource=enemyChar.health,
         static=True,
         color="#68C2F5"
     )
     mana_bar.pack(side=tk.TOP, padx=10)
 
     enemy_image = customtkinter.CTkImage(
-        light_image=Image.open("assets/sprites/Sprite_Red.png").transpose(Image.FLIP_LEFT_RIGHT),
+        light_image=Image.open(sprite_paths[enemyChar.sprite_index]).transpose(Image.FLIP_LEFT_RIGHT),
         size=(150, 300)
     )
 
