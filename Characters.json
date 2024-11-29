@@ -1,17 +1,5 @@
 [
    {
-      "name": "Bim Bob",
-      "level": 1,
-      "xp": 0,
-      "defeated_enemies": 0,
-      "secrets": 0,
-      "vitality": 6,
-      "strength": 4,
-      "dexterity": 0,
-      "defense": 0,
-      "sprite_path": 0
-   },
-   {
       "name": "Guy",
       "level": 1,
       "xp": 0,
@@ -22,5 +10,29 @@
       "dexterity": 0,
       "defense": 0,
       "sprite_path": 2
+   },
+   {
+      "name": "Ren",
+      "level": 1,
+      "xp": 0,
+      "defeated_enemies": 0,
+      "secrets": 0,
+      "vitality": 1,
+      "strength": 4,
+      "dexterity": 4,
+      "defense": 1,
+      "sprite_path": 1
+   },
+   {
+      "name": "Test Vitality",
+      "level": 1,
+      "xp": 0,
+      "defeated_enemies": 0,
+      "secrets": 0,
+      "vitality": 10,
+      "strength": 0,
+      "dexterity": 0,
+      "defense": 0,
+      "sprite_path": 0
    }
 ]

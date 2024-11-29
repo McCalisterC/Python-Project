@@ -6,6 +6,8 @@ import window_manager
 import json
 import os
 import random
+import threading
+import time
 from SpritesStore import sprite_paths
 from PIL import Image
 from ResourceBar import ResourceBar
@@ -14,9 +16,13 @@ from GameChar import char
 # Main Window Properties
 playerChar = char
 enemyChar = char
+player_health_bar = ResourceBar
+player_mana_bar = ResourceBar
+enemy_health_bar = ResourceBar
+enemy_mana_bar = ResourceBar
 
 def updateWindow(window, frame, name):
-    global playerChar, enemyChar
+    global playerChar, enemyChar, player_health_bar, player_mana_bar, enemy_health_bar, enemy_mana_bar
     frame = window_manager.update_window(window, frame, "Battle")
 
     #Load character passed in
@@ -71,15 +77,15 @@ def updateWindow(window, frame, name):
     player_char_frame.propagate(0)
     player_char_frame.pack(side=tk.LEFT, expand=TRUE)
 
-    health_bar = ResourceBar(
+    player_health_bar = ResourceBar(
         master=player_char_frame,
         width=200,
         height=20,
         max_resource=playerChar.health
     )
-    health_bar.pack(side=tk.TOP, padx=10)
+    player_health_bar.pack(side=tk.TOP, padx=10)
 
-    mana_bar = ResourceBar(
+    player_mana_bar = ResourceBar(
         master=player_char_frame,
         width=200,
         height=20,
@@ -87,7 +93,7 @@ def updateWindow(window, frame, name):
         static=True,
         color="#68C2F5"
     )
-    mana_bar.pack(side=tk.TOP, padx=10)
+    player_mana_bar.pack(side=tk.TOP, padx=10)
 
     player_image = customtkinter.CTkImage(
         light_image=Image.open(sprite_paths[playerChar.sprite_index]),
@@ -101,23 +107,23 @@ def updateWindow(window, frame, name):
     enemy_char_frame.propagate(0)
     enemy_char_frame.pack(side=tk.LEFT, expand=TRUE)
 
-    health_bar = ResourceBar(
+    enemy_health_bar = ResourceBar(
         master=enemy_char_frame,
         width=200,
         height=20,
         max_resource=enemyChar.health
     )
-    health_bar.pack(side=tk.TOP, padx=10)
+    enemy_health_bar.pack(side=tk.TOP, padx=10)
 
-    mana_bar = ResourceBar(
+    enemy_mana_bar = ResourceBar(
         master=enemy_char_frame,
         width=200,
         height=20,
-        max_resource=enemyChar.health,
+        max_resource=100,
         static=True,
         color="#68C2F5"
     )
-    mana_bar.pack(side=tk.TOP, padx=10)
+    enemy_mana_bar.pack(side=tk.TOP, padx=10)
 
     enemy_image = customtkinter.CTkImage(
         light_image=Image.open(sprite_paths[enemyChar.sprite_index]).transpose(Image.FLIP_LEFT_RIGHT),
@@ -147,7 +153,9 @@ def updateWindow(window, frame, name):
             corner_radius=6,
             border_color="#000000",
             bg_color="#FFFFFF",
-            fg_color="#90EE90"
+            fg_color="#90EE90",
+            command=lambda: turnChange_thread(frame, controls_frame, enemyChar.takeDamage(damage=playerChar.normalAttack(), isCrit=playerChar.attackCrit), 
+                                       player_health_bar, player_mana_bar, enemy_health_bar, enemy_mana_bar)
         )
         normal_attack_button.pack(side=tk.LEFT, expand=TRUE)
 
@@ -282,17 +290,37 @@ def updateWindow(window, frame, name):
 
     def special_attacks_controls(frame, frame_to_destroy, type):
         names = []
+        functions = {}
         type_level = 0
 
         if(type == "vitality"):
             names = ["Leeching Strike", "Cure", "Full Heal"]
+            functions = {'special1': playerChar.WarCry, 'special2': playerChar.WarCry, 'special3': playerChar.WarCry}
+            type_level = playerChar.vitality
         elif(type == "strength"):
             names = ["Warcry", "Focus Punch", "Magic Burst"]
+            functions = {'special1': playerChar.WarCry, 'special2': playerChar.WindUpStart, 'special3': lambda: enemyChar.takeDamage(damage=playerChar.MagicBurst(), isCrit=False)}
+            type_level = playerChar.strength
         elif(type == "defense"):
             names = ["Shield Bash", "Impair", "Impervious"]
+            functions = {'special1': playerChar.WarCry, 'special2': playerChar.WarCry, 'special3': playerChar.WarCry}
+            type_level = playerChar.defense
         elif(type == "dexterity"):
             names = ["Laceration", "Cheap Shot", "2Fast 2Furious"]
+            functions = {'special1': playerChar.WarCry, 'special2': playerChar.WarCry, 'special3': playerChar.WarCry}
+            type_level = playerChar.dexterity
 
+        button_valid = []
+
+        if type_level < 3:
+            button_valid = ["disabled", "disabled", "disabled"]
+        elif type_level < 6:
+            button_valid = ["normal", "disabled", "disabled"]
+        elif type_level < 10:
+            button_valid = ["normal", "normal", "disabled"]
+        else:
+            button_valid = ["normal", "normal", "normal"]
+        
         frame_to_destroy.destroy()
 
         controls_frame = Frame(frame, width=1280, height=300, background="#FFFFFF")
@@ -316,7 +344,10 @@ def updateWindow(window, frame, name):
             corner_radius=6,
             border_color="#000000",
             bg_color="#FFFFFF",
-            fg_color="#90EE90"
+            fg_color="#90EE90",
+            state=button_valid[0],
+            command=lambda: turnChange_thread(frame, controls_frame, functions["special1"](), 
+                                       player_health_bar, player_mana_bar, enemy_health_bar, enemy_mana_bar)
         )
         normal_attack_button.pack(side=tk.LEFT, expand=TRUE)
 
@@ -333,7 +364,10 @@ def updateWindow(window, frame, name):
             corner_radius=6,
             border_color="#000000",
             bg_color="#FFFFFF",
-            fg_color="#90EE90"
+            fg_color="#90EE90",
+            state=button_valid[1],
+            command=lambda: turnChange_thread(frame, controls_frame, functions["special2"](), 
+                                       player_health_bar, player_mana_bar, enemy_health_bar, enemy_mana_bar)
         )
         normal_attack_button.pack(side=tk.LEFT, expand=TRUE)
 
@@ -354,7 +388,10 @@ def updateWindow(window, frame, name):
             corner_radius=6,
             border_color="#000000",
             bg_color="#FFFFFF",
-            fg_color="#90EE90"
+            fg_color="#90EE90",
+            state=button_valid[2],
+            command=lambda: turnChange_thread(frame, controls_frame, functions["special3"](), 
+                                       player_health_bar, player_mana_bar, enemy_health_bar, enemy_mana_bar)
         )
         normal_attack_button.pack(side=tk.LEFT, expand=TRUE)
 
@@ -375,3 +412,93 @@ def updateWindow(window, frame, name):
             command=lambda: special_attacks_select_controls(frame, controls_frame)
         )
         normal_attack_button.pack(side=tk.LEFT, expand=TRUE)
+
+    def updateValues(player_health, player_mana, enemy_health, enemy_mana):
+
+        player_health.set_resource(playerChar.health)
+        player_mana.set_resource(playerChar.mana)
+        enemy_health.set_resource(enemyChar.health)
+        enemy_mana.set_resource(enemyChar.mana)
+
+    def turnChange_thread(frame, frame_to_destroy, message, player_health, player_mana, enemy_health, enemy_mana):
+        threading.Thread(target=turnChange, args=(frame, frame_to_destroy, message, player_health, player_mana, enemy_health, enemy_mana)).start()
+
+    def turnChange(frame, frame_to_destroy, message, player_health, player_mana, enemy_health, enemy_mana):
+        global playerChar, enemyChar
+        frame_to_destroy.destroy()
+
+        message_frame = Frame(frame, width=1280, height=300, background="#FFFFFF")
+        message_frame.propagate(0)
+        message_frame.pack(side=tk.TOP, expand=TRUE)
+
+        message = customtkinter.CTkLabel(
+            master=message_frame,
+            text=message,
+            font=("Arial", 40),
+            text_color="#000000",
+            compound="center",
+            anchor="center"
+        )
+        message.pack(side=tk.TOP, expand=TRUE)
+
+        updateValues(player_health, player_mana, enemy_health, enemy_mana)
+
+        playerChar.turnUpdate()
+
+        time.sleep(2)
+
+        if enemyChar.health <= 0:
+            message.configure(text="You win!")
+
+            time.sleep(2)
+
+            initExitButton(message_frame)
+
+        else:
+            message.configure(text=playerChar.takeDamage(damage=enemyChar.normalAttack(), isCrit=enemyChar.attackCrit))
+
+            updateValues(player_health, player_mana, enemy_health, enemy_mana)
+
+            enemyChar.turnUpdate()
+
+            time.sleep(2)
+
+            if playerChar.health <= 0:
+                message.configure(text="You lose!")
+
+                time.sleep(2)
+
+                initExitButton(message_frame)
+
+            else:
+                playerChar.attackCrit = False
+                enemyChar.attackCrit = False
+
+                if(playerChar.windUp == True):
+                    playerChar.windUpTurns -= 1
+                    if(playerChar.windUpTurns > 0):
+                        turnChange_thread(frame, message_frame, f"{name} is focusing!", 
+                                          player_health, player_mana, enemy_health, enemy_mana)
+                    else:
+                        turnChange_thread(frame, message_frame, enemyChar.takeDamage(damage=playerChar.WindUpEnd(), isCrit=False), 
+                                          player_health, player_mana, enemy_health, enemy_mana)
+                normal_controls(frame, message_frame)
+
+    def initExitButton(message_frame):
+        exit_button = customtkinter.CTkButton(
+            master=message_frame,
+            text="Exit",
+            font=("undefined", 40, 'bold'),
+            text_color="#000000",
+            hover=True,
+            hover_color="#9a1d1d",
+            height=30,
+            width=150,
+            border_width=2,
+            corner_radius=6,
+            border_color="#000000",
+            bg_color="#FFFFFF",
+            fg_color="#ff0000",
+            command=lambda: window_manager.navigate_to(window, frame, "main")
+        )
+        exit_button.pack(side=tk.TOP, expand=TRUE)
