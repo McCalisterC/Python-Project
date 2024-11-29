@@ -2,6 +2,6 @@
 attackUpIncrease = 3
 
 #Mana costs
-warCryCost = 20
-windUpCost = 40
-magicBurst = 100
+special1Cost = 20
+special2Cost = 50
+special3Cost = 100

@@ -58,13 +58,13 @@ class char:
         updatedAttackUp = {"Attack Up": 3}
         self.buffs.update(updatedAttackUp)
         self.strength += CharValues.attackUpIncrease
-        self.mana -= CharValues.warCryCost
+        self.mana -= CharValues.special1Cost
         return f"{self.name} used War Cry! Attack buffed for 2 turns!"
     
     def WindUpStart(self):
         self.windUp = True
         self.windUpTurns = 1
-        self.mana -= CharValues.windUpCost
+        self.mana -= CharValues.special2Cost
         return f"{self.name} is focusing!"
     
     def WindUpEnd(self):
