@@ -1,7 +1,27 @@
 #Buff Turn Values
-attackUpIncrease = 3
+attackUpTurns = 3
+doubleTime = 3
+
+#Buff values
+attackUp = 3
+
+#Debuff Turn Values
+defenseDownTurns = 3
+attackDownTurns = 3
+imperviousStunTurns = 4
+lacerationTurns = 3
+
+#Debuff Values
+defenseDown = 3
+attackDown = 3
+laceration = 8
 
 #Mana costs
-special1Cost = 20
-special2Cost = 50
-special3Cost = 100
+strengthCost = [20, 50, 100]
+vitalityCost = [20, 50, 100]
+defenseCost = [20, 50, 100]
+dexterityCost = [20, 50, 80]
+
+#Unique Values
+lifestealAmount = 5
+cheapShotBaseDamage = 20

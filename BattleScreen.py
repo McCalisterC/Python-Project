@@ -15,22 +15,23 @@ from GameChar import char
 import CharValues
 from queue import Queue
 
-# Main Window Properties
-playerChar = char
-enemyChar = char
-player_health_bar = ResourceBar
-player_mana_bar = ResourceBar
-enemy_health_bar = ResourceBar
-enemy_mana_bar = ResourceBar
 message_label = customtkinter.CTkLabel
 message_frame = customtkinter.CTkFrame
 
 def updateWindow(window, frame, name):
-    global playerChar, enemyChar, player_health_bar, player_mana_bar, enemy_health_bar, enemy_mana_bar
+    playerGameChar = char
+    enemyGameChar = char
+    player_health_bar = ResourceBar
+    player_mana_bar = ResourceBar
+    enemy_health_bar = ResourceBar
+    enemy_mana_bar = ResourceBar
+
+    playerChar = {}
+    all_characters = []
+
     frame = window_manager.update_window(window, frame, "Battle")
 
     #Load character passed in
-    all_characters = []
     if os.path.exists("Characters.json"):
         try:
             with open("Characters.json", "r") as file:
@@ -41,7 +42,9 @@ def updateWindow(window, frame, name):
 
     for character in all_characters:
         if character.get("name") == name:
-            playerChar = char(
+            playerChar = character
+
+            playerGameChar = char(
                 character.get("vitality"),
                 character.get("strength"),
                 character.get("defense"),
@@ -52,19 +55,18 @@ def updateWindow(window, frame, name):
             
             enemySkillPoints = character.get("level") + 9
 
-            enemyVitality = random.randrange(0, enemySkillPoints)
+            enemyVitality =  0 #random.randrange(0, enemySkillPoints)
             enemySkillPoints -= enemyVitality
 
-            enemyStrength = random.randrange(0, enemySkillPoints)
+            enemyStrength = 0 #random.randrange(0, enemySkillPoints)
             enemySkillPoints -= enemyStrength
 
-            enemyDefense = random.randrange(0, enemySkillPoints)
+            enemyDefense = 0 #random.randrange(0, enemySkillPoints)
             enemySkillPoints -= enemyDefense
 
-            enemyDexterity = random.randrange(0, enemySkillPoints)
-            enemySkillPoints -= enemyDexterity
+            enemyDexterity = 10 #enemySkillPoints
 
-            enemyChar = char(
+            enemyGameChar = char(
                 enemyVitality,
                 enemyStrength,
                 enemyDefense,
@@ -85,7 +87,7 @@ def updateWindow(window, frame, name):
         master=player_char_frame,
         width=200,
         height=20,
-        max_resource=playerChar.health
+        max_resource=playerGameChar.health
     )
     player_health_bar.pack(side=tk.TOP, padx=10)
 
@@ -93,14 +95,14 @@ def updateWindow(window, frame, name):
         master=player_char_frame,
         width=200,
         height=20,
-        max_resource=playerChar.mana,
+        max_resource=playerGameChar.mana,
         static=True,
         color="#68C2F5"
     )
     player_mana_bar.pack(side=tk.TOP, padx=10)
 
     player_image = customtkinter.CTkImage(
-        light_image=Image.open(sprite_paths[playerChar.sprite_index]),
+        light_image=Image.open(sprite_paths[playerGameChar.sprite_index]),
         size=(150, 300)
     )
 
@@ -115,7 +117,7 @@ def updateWindow(window, frame, name):
         master=enemy_char_frame,
         width=200,
         height=20,
-        max_resource=enemyChar.health
+        max_resource=enemyGameChar.health
     )
     enemy_health_bar.pack(side=tk.TOP, padx=10)
 
@@ -130,7 +132,7 @@ def updateWindow(window, frame, name):
     enemy_mana_bar.pack(side=tk.TOP, padx=10)
 
     enemy_image = customtkinter.CTkImage(
-        light_image=Image.open(sprite_paths[enemyChar.sprite_index]).transpose(Image.FLIP_LEFT_RIGHT),
+        light_image=Image.open(sprite_paths[enemyGameChar.sprite_index]).transpose(Image.FLIP_LEFT_RIGHT),
         size=(150, 300)
     )
 
@@ -158,7 +160,7 @@ def updateWindow(window, frame, name):
             border_color="#000000",
             bg_color="#FFFFFF",
             fg_color="#90EE90",
-            command=lambda: turnChange_thread(frame, controls_frame, enemyChar.takeDamage(damage=playerChar.normalAttack(), isCrit=playerChar.attackCrit), 
+            command=lambda: turnChange_thread(frame, controls_frame, enemyGameChar.takeDamage(damage=playerGameChar.normalAttack(), isCrit=playerGameChar.attackCrit), 
                                        player_health_bar, player_mana_bar, enemy_health_bar, enemy_mana_bar, queue)
         )
         normal_attack_button.pack(side=tk.LEFT, expand=TRUE)
@@ -294,47 +296,57 @@ def updateWindow(window, frame, name):
 
     def special_attacks_controls(frame, frame_to_destroy, type):
         names = []
+        cost = []
         functions = {}
         type_level = 0
 
         if(type == "vitality"):
             names = ["Leeching Strike", "Cure", "Full Heal"]
-            functions = {'special1': playerChar.WarCry, 'special2': playerChar.WarCry, 'special3': playerChar.WarCry}
-            type_level = playerChar.vitality
+            cost = CharValues.vitalityCost
+            functions = {'special1':lambda: playerGameChar.LeechingStrike() + enemyGameChar.takeDamage(damage=playerGameChar.normalAttack(), isCrit=playerGameChar.attackCrit), 'special2': playerGameChar.Cure, 'special3': playerGameChar.FullHeal}
+            type_level = playerGameChar.vitality
         elif(type == "strength"):
             names = ["War Cry", "Focus Punch", "Magic Burst"]
-            functions = {'special1': playerChar.WarCry, 'special2': playerChar.WindUpStart, 'special3': lambda: enemyChar.takeDamage(damage=playerChar.MagicBurst(), isCrit=False)}
-            type_level = playerChar.strength
+            cost = CharValues.strengthCost
+            functions = {'special1': playerGameChar.WarCry, 'special2': playerGameChar.WindUpStart, 'special3': lambda: f"{playerGameChar.name} has expended all there magic! " + enemyGameChar.takeDamage(damage=playerGameChar.MagicBurst(), isCrit=False)}
+            type_level = playerGameChar.strength
         elif(type == "defense"):
             names = ["Shield Bash", "Impair", "Impervious"]
-            functions = {'special1': playerChar.WarCry, 'special2': playerChar.WarCry, 'special3': playerChar.WarCry}
-            type_level = playerChar.defense
+            cost = CharValues.defenseCost
+            functions = {'special1':lambda: enemyGameChar.ShieldBash(char=playerGameChar), 'special2':lambda: enemyGameChar.Impair(char=playerGameChar), 'special3':lambda: enemyGameChar.Impervious(char=playerGameChar)}
+            type_level = playerGameChar.defense
         elif(type == "dexterity"):
             names = ["Laceration", "Cheap Shot", "2Fast 2Furious"]
-            functions = {'special1': playerChar.WarCry, 'special2': playerChar.WarCry, 'special3': playerChar.WarCry}
-            type_level = playerChar.dexterity
+            cost = CharValues.dexterityCost
+            functions = {'special1':lambda: enemyGameChar.Laceration(char=playerGameChar), 'special2':lambda: f"{playerGameChar.name} uses {enemyGameChar.name}'s weaknesses against them! " + enemyGameChar.takeDamage(damage=playerGameChar.CheapShot(debuffAmount=len(enemyGameChar.debuffs)), isCrit=False), 'special3': playerGameChar.DoubleTime}
+            type_level = playerGameChar.dexterity
 
         button_valid = []
 
         if type_level < 3:
             button_valid = ["disabled", "disabled", "disabled"]
         elif type_level < 6:
-            button_valid = ["normal", "disabled", "disabled"]
+            if playerGameChar.mana < cost[0]:
+                button_valid = ["disabled", "disabled", "disabled"]
+            else:
+                button_valid = ["normal", "disabled", "disabled"]
         elif type_level < 10:
-            button_valid = ["normal", "normal", "disabled"]
+            if playerGameChar.mana < cost[0]:
+                button_valid = ["disabled", "disabled", "disabled"]
+            elif playerGameChar.mana < cost[1]:
+                button_valid = ["normal", "disabled", "disabled"]
+            else:
+                button_valid = ["normal", "normal", "disabled"]
         else:
-            button_valid = ["normal", "normal", "normal"]
+            if playerGameChar.mana < cost[0]:
+                button_valid = ["disabled", "disabled", "disabled"]
+            elif playerGameChar.mana < cost[1]:
+                button_valid = ["normal", "disabled", "disabled"]
+            elif playerGameChar.mana < cost[2]:
+                button_valid = ["normal", "normal", "disabled"]
+            else:
+                button_valid = ["normal", "normal", "normal"]
 
-        if playerChar.mana < CharValues.special1Cost:
-            button_valid = ["disabled", "disabled", "disabled"]
-        elif playerChar.mana < CharValues.special2Cost:
-            button_valid = ["normal", "disabled", "disabled"]
-        elif playerChar.mana < CharValues.special3Cost:
-            button_valid = ["normal", "normal", "disabled"]
-        elif playerChar.mana >= CharValues.special3Cost:
-            button_valid = ["normal", "normal", "normal"]
-
-        
         frame_to_destroy.destroy()
 
         controls_frame = Frame(frame, width=1280, height=300, background="#FFFFFF")
@@ -429,13 +441,13 @@ def updateWindow(window, frame, name):
 
     def updateValues(player_health, player_mana, enemy_health, enemy_mana):
 
-        player_health.set_resource(playerChar.health)
-        player_mana.set_resource(playerChar.mana)
-        enemy_health.set_resource(enemyChar.health)
-        enemy_mana.set_resource(enemyChar.mana)
+        player_health.set_resource(playerGameChar.health)
+        player_mana.set_resource(playerGameChar.mana)
+        enemy_health.set_resource(enemyGameChar.health)
+        enemy_mana.set_resource(enemyGameChar.mana)
 
     def turnChange_thread(frame, frame_to_destroy, message, player_health, player_mana, enemy_health, enemy_mana, queue):
-        global message_label, message_frame
+        global message_frame, message_label
         frame_to_destroy.destroy()
 
         message_frame = Frame(frame, width=1280, height=300, background="#FFFFFF")
@@ -452,71 +464,283 @@ def updateWindow(window, frame, name):
         )
         message_label.pack(side=tk.TOP, expand=TRUE)
 
-        threading.Thread(target=turnChange, args=(frame, player_health, player_mana, enemy_health, enemy_mana, queue)).start()
+        threading.Thread(target=turnChange, args=(player_health, player_mana, enemy_health, enemy_mana, queue)).start()
 
-    def turnChange(frame, player_health, player_mana, enemy_health, enemy_mana, queue):
-        global playerChar, enemyChar
-
+    def turnChange(player_health, player_mana, enemy_health, enemy_mana, queue):
         updateValues(player_health, player_mana, enemy_health, enemy_mana)
-
-        playerChar.turnUpdate()
 
         time.sleep(2)
 
-        if enemyChar.health <= 0:
-            queue.put("You win!")
-
-            time.sleep(2)
-
-            window_manager.navigate_to(window, frame, "main")
+        if enemyGameChar.health <= 0:
+            queue.put("Player Wins")
 
         else:
-            queue.put(playerChar.takeDamage(damage=enemyChar.normalAttack(), isCrit=enemyChar.attackCrit))
+            enemyGameChar.turnUpdate()
+
+            if "Double Time" in playerGameChar.buffs:
+                if playerGameChar.buffs.get("Double Time") % 2 == 0:
+                    turns = playerGameChar.buffs.get("Double Time") - 1
+                    playerGameChar.buffs.update({"Double Time": turns})
+                    queue.put("end turn")
+                    return
+            
+            if "Stun" in enemyGameChar.debuffs:
+                queue.put(f"{enemyGameChar.name} is stunned!")
+            elif "Laceration" in enemyGameChar.debuffs:
+                updateValues(player_health, player_mana, enemy_health, enemy_mana)
+
+                queue.put(f"{enemyGameChar.name} takes {CharValues.laceration} bleed damage!")
+                time.sleep(2)
+                queue.put(enemyGameChar.enemyTurn(player=playerGameChar))
+                if "Double Time" in enemyGameChar.buffs:
+                    if enemyGameChar.buffs.get("Double Time") % 2 == 0:
+                        time.sleep(2)
+                        turns = enemyGameChar.buffs.get("Double Time") - 1
+                        enemyGameChar.buffs.update({"Double Time": turns})
+                        queue.put(enemyGameChar.enemyTurn(player=playerGameChar))
+            else:
+                queue.put(enemyGameChar.enemyTurn(player=playerGameChar))
+                if "Double Time" in enemyGameChar.buffs:
+                    if enemyGameChar.buffs.get("Double Time") % 2 == 0:
+                        time.sleep(2)
+                        turns = enemyGameChar.buffs.get("Double Time") - 1
+                        enemyGameChar.buffs.update({"Double Time": turns})
+                        queue.put(enemyGameChar.enemyTurn(player=playerGameChar))
 
             updateValues(player_health, player_mana, enemy_health, enemy_mana)
 
-            enemyChar.turnUpdate()
-
             time.sleep(2)
 
-            if playerChar.health <= 0:
-                queue.put("You lose!")
-
-                time.sleep(2)
-
-                window_manager.navigate_to(window, frame, "main")
+            if playerGameChar.health <= 0:
+                queue.put("Player Lost")
 
             else:
-                playerChar.attackCrit = False
-                enemyChar.attackCrit = False
+                playerGameChar.attackCrit = False
+                enemyGameChar.attackCrit = False
+                playerGameChar.turnUpdate()
 
-                if(playerChar.windUp == True):
-                    playerChar.windUpTurns -= 1
-                    if(playerChar.windUpTurns > 0):
+                if(playerGameChar.windUp == True):
+                    playerGameChar.windUpTurns -= 1
+                    if(playerGameChar.windUpTurns > 0):
                         queue.put("focus continue")
                         return
                     else:
                         queue.put("focus end")
                         return
+                if "Stun" in playerGameChar.debuffs:
+                    while "Stun" in playerGameChar.debuffs:
+                        queue.put(f"{playerGameChar.name} is stunned!")
+                        playerGameChar.turnUpdate()
+                        time.sleep(2)
+                        queue.put(enemyGameChar.enemyTurn(player=playerGameChar))
+                        if "Double Time" in enemyGameChar.buffs:
+                            if enemyGameChar.buffs.get("Double Time") % 2 == 0:
+                                time.sleep(2)
+                                turns = enemyGameChar.buffs.get("Double Time") - 1
+                                enemyGameChar.buffs.update({"Double Time": turns})
+                                queue.put(enemyGameChar.enemyTurn(player=playerGameChar))
+                                enemyGameChar.turnUpdate()
+                        updateValues(player_health, player_mana, enemy_health, enemy_mana)
+                        time.sleep(2)
+
+                        if playerGameChar.health <= 0:
+                            queue.put("Player Lost")
+                            return
+                elif "Laceration" in playerGameChar.debuffs:
+                    updateValues(player_health, player_mana, enemy_health, enemy_mana)
+
+                    queue.put(f"{playerGameChar.name} takes {CharValues.laceration} bleed damage!")
+                    time.sleep(2)
                 queue.put("end turn")
+                return
     
     queue = Queue()
 
     def processQueue():
-        global message_label, message_frame
+        global message_frame, message_label
         while not queue.empty():
             message = queue.get_nowait()
             match message:
                 case "focus continue":
-                    turnChange_thread(frame, message_frame, f"{name} is focusing!", 
+                    turnChange_thread(frame, message_frame, f"{playerGameChar.name} is focusing!", 
                                         player_health_bar, player_mana_bar, enemy_health_bar, enemy_mana_bar, queue)
                 case "focus end":
-                    turnChange_thread(frame, message_frame, enemyChar.takeDamage(damage=playerChar.WindUpEnd(), isCrit=False), 
+                    turnChange_thread(frame, message_frame, f"{playerGameChar.name} has launched a powerful attack! " + enemyGameChar.takeDamage(damage=playerGameChar.WindUpEnd(), isCrit=False), 
                                         player_health_bar, player_mana_bar, enemy_health_bar, enemy_mana_bar, queue)
                 case "end turn":
                     normal_controls(frame, message_frame)
+                case "Player Wins":
+                    handleWin(playerChar, all_characters)
+                    EndGameScreen(window, f"You Win!", playerChar, True)
+                case "Player Lost":
+                    EndGameScreen(window, f"You Lost!", playerChar, False)
                 case _:
                     message_label.configure(text=message)
         window.after(100, processQueue)
 
+    def handleWin(character, all_characters):
+        for character in all_characters:
+            if character.get("name") == name:
+                character.update({"xp": character.get("xp") + 10})
+                if character.get("xp") >= character.get("level") * 40:
+                    character.update({"level": character.get("level") + 1})
+                character.update({"defeated_enemies": character.get("defeated_enemies") + 1})
+                break
+        try:
+            with open("Characters.json", "w") as file:
+                json.dump(all_characters, file, indent=3)
+        except Exception as e:
+            return
+
+    def EndGameScreen(window, message, character, playerWin):
+        end_game_frame = customtkinter.CTkFrame(
+            master=window,
+            width=1000,
+            height=600
+        )
+        end_game_frame.propagate(0)
+        end_game_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+        end_game_message = customtkinter.CTkLabel(
+            master=end_game_frame,
+            text=message,
+            font=("Arial", 30),
+            text_color="#000000",
+            height=30,
+            width=200,
+            corner_radius=0,
+            bg_color="#FFFFFF",
+            fg_color="#FFFFFF",
+            compound="center",
+            anchor="center"
+        )
+        end_game_message.pack(side=tk.TOP, expand=True)
+
+        if playerWin:
+            xp_obtained_label = customtkinter.CTkLabel(
+                master=end_game_frame,
+                text="Gained XP: 10",
+                font=("Arial", 30),
+                text_color="#000000",
+                height=30,
+                width=200,
+                corner_radius=0,
+                bg_color="#FFFFFF",
+                fg_color="#FFFFFF",
+                compound="center",
+                anchor="center"
+            )
+            xp_obtained_label.pack(side=tk.TOP, expand=True)
+
+            current_xp_label = customtkinter.CTkLabel(
+                master=end_game_frame,
+                text=f"Current XP: {character.get('xp')}",
+                font=("Arial", 30),
+                text_color="#000000",
+                height=30,
+                width=200,
+                corner_radius=0,
+                bg_color="#FFFFFF",
+                fg_color="#FFFFFF",
+                compound="center",
+                anchor="center"
+            )
+            current_xp_label.pack(side=tk.TOP, expand=True)
+
+            xp_progression_frame = customtkinter.CTkFrame(
+                master=end_game_frame,
+                width=500,
+                height=100
+            )
+            xp_progression_frame.pack(side=tk.TOP, expand=True)
+
+            xp_progression_label = customtkinter.CTkLabel(
+                master=xp_progression_frame,
+                text="XP Progression To Next Level: ",
+                font=("Arial", 30),
+                text_color="#000000",
+                height=50,
+                width=200,
+                corner_radius=0,
+                bg_color="#FFFFFF",
+                fg_color="#FFFFFF",
+                compound="center",
+                anchor="center"
+            )
+            xp_progression_label.pack(side=tk.LEFT, expand=True)
+
+            xp_progression_bar = ResourceBar(
+                master=xp_progression_frame,
+                width=200,
+                height=50,
+                max_resource=40,
+                current_resource=character.get("xp") - ((character.get("level") - 1) * 40),
+                static=True,
+                color="#68C2F5"
+            )
+            xp_progression_bar.pack(side=tk.TOP, padx=10)
+
+        button_frame = customtkinter.CTkFrame(
+            master=end_game_frame,
+            width=500,
+            height=50
+        )
+        button_frame.propagate(0)
+        button_frame.pack(side=tk.TOP, expand=True)
+
+        play_again_button = customtkinter.CTkButton(
+            master=button_frame,
+            text="Play Again",
+            font=("undefined", 16),
+            text_color="#000000",
+            hover=True,
+            hover_color="#188124",
+            height=30,
+            width=150,
+            border_width=2,
+            corner_radius=6,
+            border_color="#000000",
+            bg_color="#FFFFFF",
+            fg_color="#00ff55",
+            command=lambda: window_manager.navigate_to_battle(window, frame, name)
+        )
+        play_again_button.pack(side=tk.LEFT, expand=True)
+
+        edit_char_button = customtkinter.CTkButton(
+            master=button_frame,
+            text="Edit Character",
+            font=("undefined", 16),
+            text_color="#000000",
+            hover=True,
+            hover_color="#0F52BA",
+            height=30,
+            width=150,
+            border_width=2,
+            corner_radius=6,
+            border_color="#000000",
+            bg_color="#FFFFFF",
+            fg_color="#68C2F5",
+            command=lambda: window_manager.navigate_to_character_edit(window, frame, name)
+        )
+        edit_char_button.pack(side=tk.LEFT, expand=True)
+
+        exit_button = customtkinter.CTkButton(
+            master=button_frame,
+            text="Return to Main Menu",
+            font=("undefined", 16),
+            text_color="#000000",
+            hover=True,
+            hover_color="#9a1d1d",
+            height=30,
+            width=150,
+            border_width=2,
+            corner_radius=6,
+            border_color="#000000",
+            bg_color="#FFFFFF",
+            fg_color="#ff0000",
+            command=lambda: window_manager.navigate_to(window, frame, "main")
+            )
+        exit_button.pack(side=tk.LEFT, expand=True)
+
     processQueue()
+    enemyGameChar.enemyInit(player=playerGameChar)

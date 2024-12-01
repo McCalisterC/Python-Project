@@ -1,12 +1,15 @@
 import tkinter as tk
 
 class ResourceBar(tk.Canvas):
-    def __init__(self, master, width=200, height=20, max_resource=100, static=False, color="green", **kwargs):
+    def __init__(self, master, width=200, height=20, max_resource=100, current_resource=0, static=False, color="green", **kwargs):
         super().__init__(master, width=width, height=height, **kwargs)
         self.width = width
         self.height = height
         self.max_resource = max_resource
-        self.current_resource = max_resource
+        if current_resource == 0:
+            self.current_resource = max_resource
+        else:
+            self.current_resource = current_resource
         self.static = static
         self.color = color
         self.health_bar = self.create_rectangle(0, 0, width, height, fill="grey")

@@ -1,11 +1,11 @@
 [
    {
       "name": "Guy",
-      "level": 1,
-      "xp": 0,
-      "defeated_enemies": 0,
+      "level": 11,
+      "xp": 400,
+      "defeated_enemies": 40,
       "secrets": 0,
-      "vitality": 0,
+      "vitality": 10,
       "strength": 10,
       "dexterity": 0,
       "defense": 0,
@@ -32,6 +32,30 @@
       "vitality": 10,
       "strength": 0,
       "dexterity": 0,
+      "defense": 0,
+      "sprite_path": 0
+   },
+   {
+      "name": "Test Defense",
+      "level": 1,
+      "xp": 0,
+      "defeated_enemies": 0,
+      "secrets": 0,
+      "vitality": 0,
+      "strength": 0,
+      "dexterity": 0,
+      "defense": 10,
+      "sprite_path": 0
+   },
+   {
+      "name": "Test Dexterity",
+      "level": 1,
+      "xp": 0,
+      "defeated_enemies": 0,
+      "secrets": 0,
+      "vitality": 0,
+      "strength": 0,
+      "dexterity": 10,
       "defense": 0,
       "sprite_path": 0
    }

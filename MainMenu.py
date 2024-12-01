@@ -38,7 +38,6 @@ def updateMainMenuWindow(window, frame):
         fg_color="#00ff55",
         command=lambda: window_manager.navigate_to(window, frame, "play")
         )
-    Button_id4.place(x=600, y=200)
     Button_id4.pack(side=tk.TOP, expand=True)
     Button_id1 = customtkinter.CTkButton(
         master=frame,
@@ -56,7 +55,6 @@ def updateMainMenuWindow(window, frame):
         fg_color="#F0F0F0",
         command=lambda: window_manager.navigate_to(window, frame, "new")
         )
-    Button_id1.place(x=600, y=250)
     Button_id1.pack(side=tk.TOP, expand=True)
     Button_id3 = customtkinter.CTkButton(
         master=frame,
@@ -74,7 +72,6 @@ def updateMainMenuWindow(window, frame):
         fg_color="#F0F0F0",
         command=lambda: window_manager.navigate_to(window, frame, "edit")
         )
-    Button_id3.place(x=600, y=300)
     Button_id3.pack(side=tk.TOP, expand=True)
     Button_id5 = customtkinter.CTkButton(
         master=frame,
@@ -92,7 +89,6 @@ def updateMainMenuWindow(window, frame):
         fg_color="#F0F0F0",
         command=lambda: window_manager.navigate_to(window, frame, "remove")
         )
-    Button_id5.place(x=600, y=350)
     Button_id5.pack(side=tk.TOP, expand=True)
     Button_id6 = customtkinter.CTkButton(
         master=frame,
@@ -110,7 +106,6 @@ def updateMainMenuWindow(window, frame):
         fg_color="#F0F0F0",
         command=lambda: window_manager.navigate_to(window, frame, "details")
         )
-    Button_id6.place(x=600, y=400)
     Button_id6.pack(side=tk.TOP, expand=True)
     Button_id7 = customtkinter.CTkButton(
         master=frame,
@@ -128,5 +123,4 @@ def updateMainMenuWindow(window, frame):
         fg_color="#ff0000",
         command=lambda: window_manager.quit(window)
         )
-    Button_id7.place(x=600, y=450)
     Button_id7.pack(side=tk.TOP, expand=True)

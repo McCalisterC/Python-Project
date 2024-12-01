@@ -411,7 +411,7 @@ def updateWindow(window, frame, name):
                 # Handle case where file exists but is empty or invalid
                 all_characters = []
         
-        # Add new character
+        # Edit character
         for character in all_characters:
             if character.get("name") == name:
                 character.update({"name": characterName})
