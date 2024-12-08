@@ -1,6 +1,7 @@
 from tkinter import *
 import tkinter as tk
 
+#Function to update the window with a new blank frame
 def update_window(window, frame, title):
     frame.destroy()
     window.title(title)
@@ -12,40 +13,47 @@ def update_window(window, frame, title):
     
     return new_frame
 
-def navigate_to(window, frame, menu_type):
+#Function that navigates to a different menu/window depending on menu type
+def navigate_to(window, frame, acc, menu_type):
     if menu_type == "main":
         from MainMenu import updateMainMenuWindow
-        updateMainMenuWindow(window, frame)
+        updateMainMenuWindow(window, frame, acc)
     elif menu_type == "new":
-        from NewCharacterMenu import updateWindow
-        updateWindow(window, frame)
+        from CharacterCreationScreen import updateWindow
+        updateWindow(window, frame, acc,"New Character", -1)
     elif menu_type == "edit":
-        from EditCharacterMenu import updateWindow
-        updateWindow(window, frame)
+        from CharSelect import updateWindow
+        updateWindow(window, frame, acc, "Edit Character", "edit")
     elif menu_type == "remove":
-        from RemoveCharacterMenu import updateWindow
-        updateWindow(window, frame)
+        from CharSelect import updateWindow
+        updateWindow(window, frame, acc, "Remove Character", "remove")
     elif menu_type == "details":
-        from CharacterDetailsMenu import updateWindow
-        updateWindow(window, frame) 
+        from CharSelect import updateWindow
+        updateWindow(window, frame, acc, "Character Details", "details") 
     elif menu_type == "play":
-        from SelectCharacterMenu import updateWindow
-        updateWindow(window, frame)
-    elif menu_type == "battle":
-        from BattleScreen import updateWindow
-        updateWindow(window, frame)
+        from CharSelect import updateWindow
+        updateWindow(window, frame, acc, "Select Character", "battle")
 
-def navigate_to_character_edit(window, frame, name):
-    from EditCharacterDataScreen import updateWindow
-    updateWindow(window, frame, name)
+#Function that navigates to the login screen
+def navigate_to_login(window, frame):
+    from LoginScreen import updateWindow
+    updateWindow(window, frame)
 
-def navigate_to_character_detail(window, frame, name):
+#Function that navigates to the character edit screen
+def navigate_to_character_edit(window, frame, acc, char):
+    from CharacterCreationScreen import updateWindow
+    updateWindow(window, frame, acc, "Edit Character", char)
+
+#Function that navigates to the character detail screen
+def navigate_to_character_detail(window, frame, acc, char):
     from CharDetailScreen import updateWindow
-    updateWindow(window, frame, name)
+    updateWindow(window, frame, acc, char)
 
-def navigate_to_battle(window, frame, name):
+#Function that navigates to the battle screen
+def navigate_to_battle(window, frame, acc, char):
     from BattleScreen import updateWindow
-    updateWindow(window, frame, name)
+    updateWindow(window, frame, acc, char)
 
+#Function that quits the application
 def quit(window):
     window.destroy()

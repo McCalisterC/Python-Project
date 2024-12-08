@@ -5,10 +5,12 @@ import tkinter as tk
 import customtkinter
 import window_manager
 
-def updateMainMenuWindow(window, frame):
+def updateMainMenuWindow(window, frame, acc):
+    #Update window title
     frame = window_manager.update_window(window, frame, "Main Menu")
 
-    Label_id2 = customtkinter.CTkLabel(
+    #Create a title label
+    title_label = customtkinter.CTkLabel(
         master=frame,
         text="Main Menu",
         font=("Arial", 30),
@@ -21,8 +23,10 @@ def updateMainMenuWindow(window, frame):
         compound="center",
         anchor="center"
         )
-    Label_id2.pack(side=tk.TOP, expand=True)
-    Button_id4 = customtkinter.CTkButton(
+    title_label.pack(side=tk.TOP, expand=True)
+
+    #Create the play game button
+    play_game_button = customtkinter.CTkButton(
         master=frame,
         text="Play Game",
         font=("undefined", 16),
@@ -36,10 +40,12 @@ def updateMainMenuWindow(window, frame):
         border_color="#000000",
         bg_color="#FFFFFF",
         fg_color="#00ff55",
-        command=lambda: window_manager.navigate_to(window, frame, "play")
+        command=lambda: window_manager.navigate_to(window, frame, acc, "play")
         )
-    Button_id4.pack(side=tk.TOP, expand=True)
-    Button_id1 = customtkinter.CTkButton(
+    play_game_button.pack(side=tk.TOP, expand=True)
+
+    #Create the new character button
+    new_char_button = customtkinter.CTkButton(
         master=frame,
         text="New Character",
         font=("undefined", 16),
@@ -53,10 +59,12 @@ def updateMainMenuWindow(window, frame):
         border_color="#000000",
         bg_color="#FFFFFF",
         fg_color="#F0F0F0",
-        command=lambda: window_manager.navigate_to(window, frame, "new")
+        command=lambda: window_manager.navigate_to(window, frame, acc, "new")
         )
-    Button_id1.pack(side=tk.TOP, expand=True)
-    Button_id3 = customtkinter.CTkButton(
+    new_char_button.pack(side=tk.TOP, expand=True)
+
+    #Create the edit character button
+    edit_char_button = customtkinter.CTkButton(
         master=frame,
         text="Edit Character",
         font=("undefined", 16),
@@ -70,10 +78,12 @@ def updateMainMenuWindow(window, frame):
         border_color="#000000",
         bg_color="#FFFFFF",
         fg_color="#F0F0F0",
-        command=lambda: window_manager.navigate_to(window, frame, "edit")
+        command=lambda: window_manager.navigate_to(window, frame, acc, "edit")
         )
-    Button_id3.pack(side=tk.TOP, expand=True)
-    Button_id5 = customtkinter.CTkButton(
+    edit_char_button.pack(side=tk.TOP, expand=True)
+
+    #Create the remove character button
+    remove_char_button = customtkinter.CTkButton(
         master=frame,
         text="Remove Character",
         font=("undefined", 16),
@@ -87,10 +97,12 @@ def updateMainMenuWindow(window, frame):
         border_color="#000000",
         bg_color="#FFFFFF",
         fg_color="#F0F0F0",
-        command=lambda: window_manager.navigate_to(window, frame, "remove")
+        command=lambda: window_manager.navigate_to(window, frame, acc, "remove")
         )
-    Button_id5.pack(side=tk.TOP, expand=True)
-    Button_id6 = customtkinter.CTkButton(
+    remove_char_button.pack(side=tk.TOP, expand=True)
+
+    #Create the character details button
+    char_details_button = customtkinter.CTkButton(
         master=frame,
         text="Character Details",
         font=("undefined", 16),
@@ -104,10 +116,12 @@ def updateMainMenuWindow(window, frame):
         border_color="#000000",
         bg_color="#FFFFFF",
         fg_color="#F0F0F0",
-        command=lambda: window_manager.navigate_to(window, frame, "details")
+        command=lambda: window_manager.navigate_to(window, frame, acc, "details")
         )
-    Button_id6.pack(side=tk.TOP, expand=True)
-    Button_id7 = customtkinter.CTkButton(
+    char_details_button.pack(side=tk.TOP, expand=True)
+
+    #Create the exit game button
+    exit_game_button = customtkinter.CTkButton(
         master=frame,
         text="Exit Game",
         font=("undefined", 16),
@@ -123,4 +137,4 @@ def updateMainMenuWindow(window, frame):
         fg_color="#ff0000",
         command=lambda: window_manager.quit(window)
         )
-    Button_id7.pack(side=tk.TOP, expand=True)
+    exit_game_button.pack(side=tk.TOP, expand=True)

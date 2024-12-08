@@ -9,7 +9,7 @@
       "strength": 10,
       "dexterity": 0,
       "defense": 0,
-      "sprite_path": 2
+      "sprite_path": 1
    },
    {
       "name": "Ren",
@@ -54,8 +54,32 @@
       "defeated_enemies": 0,
       "secrets": 0,
       "vitality": 0,
-      "strength": 0,
-      "dexterity": 10,
+      "strength": 1,
+      "dexterity": 9,
+      "defense": 0,
+      "sprite_path": 0
+   },
+   {
+      "name": "NewChar Test",
+      "level": 1,
+      "xp": 10,
+      "defeated_enemies": 1,
+      "secrets": 0,
+      "vitality": 0,
+      "strength": 6,
+      "dexterity": 4,
+      "defense": 0,
+      "sprite_path": 0
+   },
+   {
+      "name": "Name is Game",
+      "level": 1,
+      "xp": 0,
+      "defeated_enemies": 0,
+      "secrets": 0,
+      "vitality": 8,
+      "strength": 2,
+      "dexterity": 0,
       "defense": 0,
       "sprite_path": 0
    }

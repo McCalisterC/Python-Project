@@ -20,61 +20,52 @@ enemies_defeated = 0
 secrets = 0
 
 # Main Window Properties
-def updateWindow(window, frame, name):
+def updateWindow(window, frame, acc, char):
     global skillPoints, characterVitality, characterStrength, characterDexterity, characterDefense, characterName, level, xp, next_level_xp, enemies_defeated, secrets
     
     # Update window using window_manager
     frame = window_manager.update_window(window, frame, "New Character")
 
-    #Load character passed in
-    all_characters = []
-    if os.path.exists("Characters.json"):
-        try:
-            with open("Characters.json", "r") as file:
-                all_characters = json.load(file)
-        except json.JSONDecodeError:
-            # Handle case where file exists but is empty or invalid
-            all_characters = []
-
-    for character in all_characters:
-        if character.get("name") == name:
-            characterName = character.get("name")
-            characterVitality = character.get("vitality")
-            characterStrength = character.get("strength")
-            characterDexterity = character.get("dexterity")
-            characterDefense = character.get("defense")
-            skillPoints = (9 + character.get("level"))
-            level = character.get("level")
-            xp = character.get("xp")
-            next_level_xp = level * 40
-            enemies_defeated = character.get("defeated_enemies")
-            secrets = character.get("secrets")
+    # Load character passed in
+    characterName = char.name
+    characterVitality = char.vitality
+    characterStrength = char.strength
+    characterDexterity = char.dexterity
+    characterDefense = char.defense
+    skillPoints = (9 + char.level) - (characterVitality + characterDefense + characterStrength + characterDexterity)
+    level = char.level
+    xp = char.xp
+    next_level_xp = level * 40
+    enemies_defeated = char.defeated_enemies
+    secrets = char.secrets
 
     # Create title label
     title_label = customtkinter.CTkLabel(
-    master=frame,
-    text=name + " Details",
-    font=("Arial", 30),
-    text_color="#000000",
-    height=30,
-    width=200,
-    corner_radius=0,
-    bg_color="#FFFFFF",
-    fg_color="#FFFFFF",
-    compound="center",
-    anchor="center"
+        master=frame,
+        text=characterName + " Details",
+        font=("Arial", 30),
+        text_color="#000000",
+        height=30,
+        width=200,
+        corner_radius=0,
+        bg_color="#FFFFFF",
+        fg_color="#FFFFFF",
+        compound="center",
+        anchor="center"
     )
     title_label.pack(side=tk.TOP, expand=True)
 
+    #Create frame for the details
     detailsFrame = Frame(frame, width=1000, height=600)
     detailsFrame.propagate(0)
     detailsFrame.pack(side=tk.TOP, expand=TRUE)
 
+    #Create the left side of the frame for editable values
     leftFrame = Frame(detailsFrame, width=400, height=600, bg="#FFFFFF")
     leftFrame.propagate(0)
     leftFrame.pack(side=tk.LEFT, expand=TRUE)
 
-    # Create skill points label
+    # Create label for left side title
     editedable_stats_label = customtkinter.CTkLabel(
         master=leftFrame,
         text="Editable Details",
@@ -112,17 +103,17 @@ def updateWindow(window, frame, name):
 
     # Create name label
     name_label = customtkinter.CTkLabel(
-    master=name_frame,
-    text=f"Character Name: {characterName}",
-    font=("Arial", 20),
-    text_color="#000000",
-    height=30,
-    width=200,
-    corner_radius=0,
-    bg_color="#FFFFFF",
-    fg_color="#FFFFFF",
-    compound="center",
-    anchor="center"
+        master=name_frame,
+        text=f"Character Name: {characterName}",
+        font=("Arial", 20),
+        text_color="#000000",
+        height=30,
+        width=200,
+        corner_radius=0,
+        bg_color="#FFFFFF",
+        fg_color="#FFFFFF",
+        compound="center",
+        anchor="center"
     )
     name_label.pack(side=tk.LEFT, expand=True)
 
@@ -152,17 +143,17 @@ def updateWindow(window, frame, name):
 
     # Create strength label
     strength_label = customtkinter.CTkLabel(
-    master=strength_frame,
-    text=f"Strength: {characterStrength}",
-    font=("Arial", 20),
-    text_color="#000000",
-    height=30,
-    width=200,
-    corner_radius=0,
-    bg_color="#FFFFFF",
-    fg_color="#FFFFFF",
-    compound="center",
-    anchor="center"
+        master=strength_frame,
+        text=f"Strength: {characterStrength}",
+        font=("Arial", 20),
+        text_color="#000000",
+        height=30,
+        width=200,
+        corner_radius=0,
+        bg_color="#FFFFFF",
+        fg_color="#FFFFFF",
+        compound="center",
+        anchor="center"
     )
     strength_label.pack(side=tk.TOP, expand=True)
 
@@ -172,17 +163,17 @@ def updateWindow(window, frame, name):
 
     # Create Dexterity label
     dexterity_label = customtkinter.CTkLabel(
-    master=dexterity_frame,
-    text=f"Dexterity: {characterDexterity}",
-    font=("Arial", 20),
-    text_color="#000000",
-    height=30,
-    width=200,
-    corner_radius=0,
-    bg_color="#FFFFFF",
-    fg_color="#FFFFFF",
-    compound="center",
-    anchor="center"
+        master=dexterity_frame,
+        text=f"Dexterity: {characterDexterity}",
+        font=("Arial", 20),
+        text_color="#000000",
+        height=30,
+        width=200,
+        corner_radius=0,
+        bg_color="#FFFFFF",
+        fg_color="#FFFFFF",
+        compound="center",
+        anchor="center"
     )
     dexterity_label.pack(side=tk.TOP, expand=True)
 
@@ -192,25 +183,26 @@ def updateWindow(window, frame, name):
 
     # Create defense label
     defense_label = customtkinter.CTkLabel(
-    master=defense_frame,
-    text=f"Defense: {characterDefense}",
-    font=("Arial", 20),
-    text_color="#000000",
-    height=30,
-    width=200,
-    corner_radius=0,
-    bg_color="#FFFFFF",
-    fg_color="#FFFFFF",
-    compound="center",
-    anchor="center"
+        master=defense_frame,
+        text=f"Defense: {characterDefense}",
+        font=("Arial", 20),
+        text_color="#000000",
+        height=30,
+        width=200,
+        corner_radius=0,
+        bg_color="#FFFFFF",
+        fg_color="#FFFFFF",
+        compound="center",
+        anchor="center"
     )
     defense_label.pack(side=tk.TOP, expand=True)
 
+    #Create right side of frame for lifetime statistics
     rightFrame = Frame(detailsFrame, width=400, height=600, bg="#FFFFFF")
     rightFrame.propagate(0)
     rightFrame.pack(side=tk.LEFT, expand=TRUE)
 
-    # Create skill points label
+    # Create right side title label
     lifetime_stats_label = customtkinter.CTkLabel(
         master=rightFrame,
         text="Lifetime Statistics",
@@ -226,7 +218,7 @@ def updateWindow(window, frame, name):
     )
     lifetime_stats_label.pack(side=tk.TOP, expand=True)
 
-    # Create skill points label
+    # Create level label
     level_label = customtkinter.CTkLabel(
         master=rightFrame,
         text=f"Level: {level}",
@@ -242,6 +234,7 @@ def updateWindow(window, frame, name):
     )
     level_label.pack(side=tk.TOP, expand=True)
 
+    #Create xp label
     xp_label = customtkinter.CTkLabel(
         master=rightFrame,
         text=f"XP: {xp}",
@@ -257,6 +250,7 @@ def updateWindow(window, frame, name):
     )
     xp_label.pack(side=tk.TOP, expand=True)
 
+    #Create xp to next level label
     xp_to_next_label = customtkinter.CTkLabel(
         master=rightFrame,
         text=f"XP Until Next Level: {next_level_xp}",
@@ -272,6 +266,7 @@ def updateWindow(window, frame, name):
     )
     xp_to_next_label.pack(side=tk.TOP, expand=True)
 
+    #Create enemies defeated label
     enemies_defeated_label = customtkinter.CTkLabel(
         master=rightFrame,
         text=f"Enemies Defeated: {enemies_defeated}",
@@ -287,6 +282,7 @@ def updateWindow(window, frame, name):
     )
     enemies_defeated_label.pack(side=tk.TOP, expand=True)
 
+    #Create secrets found label
     secrets_label = customtkinter.CTkLabel(
         master=rightFrame,
         text=f"Secrets Found: {secrets}",
@@ -302,6 +298,7 @@ def updateWindow(window, frame, name):
     )
     secrets_label.pack(side=tk.TOP, expand=True)
 
+    #Create the exit button
     exit_button = customtkinter.CTkButton(
         master=frame,
         text="Exit",
@@ -316,6 +313,6 @@ def updateWindow(window, frame, name):
         border_color="#000000",
         bg_color="#FFFFFF",
         fg_color="#ff0000",
-        command=lambda: window_manager.navigate_to(window, frame, "details")
+        command=lambda: window_manager.navigate_to(window, frame, acc, "details")
         )
     exit_button.pack(side=tk.BOTTOM, expand=True)
